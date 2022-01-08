@@ -5,9 +5,9 @@ import numpy as np
 
 class M1:
     @staticmethod
-    def T():
+    def T(w):
         A = 0.3
-        S = 1366
+        S = 1366 * w
         b = 5.67e-8
         return (S * (1 - A) / (4 * b)) ** (1 / 4)
 
@@ -54,7 +54,7 @@ class M2:
 
 # 0.75
 
-print(M1.T())
+print(M1.T(1))
 print()
 print(M2.TaTs(0.8))
 print(M2.TaTs(1))
@@ -62,32 +62,65 @@ print(M2.TaTs(1.2))
 
 temps = [[],[]]
 x = []
-for w in np.arange(0.5, 2, 0.01):
+for w in np.arange(0.8, 1.2, 0.01):
+    x.append(w)
+    t = M2.TaTs(w)
+    temps[0].append(t[0])
+    temps[1].append(t[1])
+
+plt.plot(x, temps[0], '.', x, temps[1], '.')
+plt.title(f'Temperatury średnie względem S')
+plt.xlabel('Stała słoneczna')
+plt.ylabel('Średnia temperatura [k]')
+plt.legend(['Temperatura atmosfery', 'Temperatura ziemi'])
+plt.savefig(f"tats.png")
+plt.clf()
+
+temps = [[],[]]
+x = []
+for w in np.arange(0.5, 2.0, 0.01):
+    x.append(w)
+    temps[0].append(M1.T(w))
+    temps[1].append(M2.TaTs(w)[1])
+
+plt.plot(x, temps[0], '.', x, temps[1], '.')
+plt.title(f'Średnie temperatury powierzchni względem S dla obu metod')
+plt.xlabel('Stała słoneczna')
+plt.ylabel('Średnia temperatura [k]')
+plt.legend(['Bez uwzględnienia atmosfery', 'Z uwzględnieniem atmosfery'])
+plt.savefig(f"PorMet.png")
+plt.clf()
+
+temps = [[],[]]
+x = []
+for w in np.arange(0.5, 2, 0.02):
     x.append(w)
     t = M2.TaTs_NtoG(w)
     temps[0].append(t[0])
     temps[1].append(t[1])
 
-plt.plot(x, temps[0], x, temps[1])
-plt.show()
+plt.plot(x, temps[0], '.', x, temps[1], '.')
+plt.title(f'Temperatury średnie względem S z uwzględnieniem zmiany albedo')
+plt.xlabel('Stała słoneczna')
+plt.ylabel('Średnia temperatura [k]')
+plt.legend(['Temperatura atmosfery', 'Temperatura ziemi'])
+plt.savefig(f"NtoG.png")
+plt.clf()
 
 temps = [[],[]]
-x = []
-for w in np.arange(0.5, 2, 0.01):
-    x.append(w)
-    t = M2.TaTs_GtoN(w)
-    temps[0].append(t[0])
-    temps[1].append(t[1])
-
-plt.plot(x, temps[0], x, temps[1])
-plt.show()
-
-temps = [[],[]]
-x = []
-for w in np.arange(0.5, 2, 0.01):
-    x.append(w)
+xng = []
+for w in np.arange(0.5, 2, 0.02):
+    xng.append(w)
     temps[0].append(M2.TaTs_NtoG(w)[1])
+xgn = []
+for w in np.arange(0.51, 2, 0.02):
+    xgn.append(w)
     temps[1].append(M2.TaTs_GtoN(w)[1])
 
-plt.plot(x, temps[0], x, temps[1])
-plt.show()
+plt.plot(xng, temps[0], '.', xgn, temps[1], '.')
+plt.title(f'Przejścia pomiędzy stanem zlodowacenia a normalnym')
+plt.xlabel('Stała słoneczna')
+plt.ylabel('Średnia temperatura powierzchni [k]')
+plt.legend(['Normalny do Zlodowacenia', 'Zlodowacenie do Normalnego'])
+plt.savefig(f"GandN.png")
+plt.clf()
